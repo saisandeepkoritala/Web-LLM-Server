@@ -1,0 +1,32 @@
+{
+  "dependencies": {
+    "@langchain/core": "^1.1.48",
+    "@langchain/google": "^0.1.12",
+    "@langchain/groq": "^1.2.1",
+    "@langchain/openai": "^1.4.7",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.9.1",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "html-to-text": "^10.0.0",
+    "tsx": "^4.22.3",
+    "typescript": "^6.0.3",
+    "zod": "^4.4.3"
+  },
+  "name": "server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsx watch src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/html-to-text": "^9.0.4"
+  }
+}
