@@ -1,7 +1,7 @@
 import {env} from '../shared/env';
 import { WebSearchResultsSchema } from './schemas';
 
-export async function webSearch(q:any){
+export async function webSearch(q : any){
     const query = (q??"").trim()
 
     if(!query) return []
@@ -51,7 +51,7 @@ async function searchTavilyUtil(query: string) {
     return WebSearchResultsSchema.parse(normalized);
 }
 
-async function safeText(response:Response){  
+async function safeText(response : Response){  
     try{
         return await response.text();
     }

@@ -3,8 +3,12 @@ import { Candidate } from "./types";
 import { getChatModel } from "@/models";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 
+type Input = {
+    q:string, 
+    mode:'web'|'direct'
+}
 
-async function inputToRunnable(input:{q:string,mode:'web'|'direct'}):Promise<Candidate>{
+async function inputToRunnable(input : Input):Promise<Candidate>{
     const model = getChatModel({temperature:0.2});
 
     const directAnsFromModel = await model.invoke([

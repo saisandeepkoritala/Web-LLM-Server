@@ -1,29 +1,32 @@
-
-// route strategy
-// web - webpath
-// direct - directpath
-// final validation
-// json
-
 import { RunnableBranch, RunnableSequence } from "@langchain/core/runnables";
 import { webPath } from "./webPipeline";
 import { directPath } from "./directPipeline";
 import { routerStep } from "./routeStartegy";
-import { finalValidateAndPolish } from "./finalValidate";
+import { finalValidateAndPolishStep } from "./finalValidate";
 import { SearchInput } from "@/utils/schemas";
 
+type OutputSchema = {
+    answer: string,
+    sources:string[],
+    mode:'direct'|'web'
+} 
 
-const branch = RunnableBranch.from<{q : string; mode : 'web'|'direct'}, any>(
+type InputSchema = {
+    q:string;
+    mode:'direct'|'web'
+}
+
+const branchStep = RunnableBranch.from<InputSchema, OutputSchema>(
     [
-        [(input)=>input.mode==='web',webPath],
+        [(input)=>input.mode==='web', webPath],
         directPath
     ]
 )
 
 export const searchChain = RunnableSequence.from([
     routerStep,
-    branch,
-    finalValidateAndPolish
+    branchStep,
+    finalValidateAndPolishStep
 ])
 
 export async function runSearch(input:SearchInput){

@@ -1,8 +1,7 @@
-import { searchInputSchema } from "@/utils/schemas";
 import { RunnableLambda } from "@langchain/core/runnables";
 
 
-export function routeStartegy(q:string) : "web" | "direct" {
+export function routeStartegy(q : string) : "web" | "direct" {
     const trimQuery  = q.toLowerCase().trim();
 
     const isLongQuery = trimQuery.length > 70;
@@ -45,7 +44,7 @@ export function routeStartegy(q:string) : "web" | "direct" {
     }
 }
 
-async function inputToRunnable(input:string){
+async function inputToRunnable(input : string){
 
     const q = input;
 

@@ -24,7 +24,13 @@ async function inputToRunnable(candidate : Candidate){
     
 }
 
-async function repairSearchAnswer(obj:any) : Promise<{answer:string;sources:string[];mode:'web'|'direct'}>{
+type Repair = {
+    answer : string,
+    sources : string[],
+    mode : 'web'|'direct'
+}
+
+async function repairSearchAnswer(obj : any) : Promise<Repair>{
     const model = getChatModel({temperature:0.2});
 
     const response = await model.invoke([
@@ -55,7 +61,7 @@ async function repairSearchAnswer(obj:any) : Promise<{answer:string;sources:stri
     }
 }
 
-function extractJSON(s:string){
+function extractJSON(s : string){
     const start = s.indexOf("{");
     const end = s.indexOf("}");
 
@@ -71,4 +77,4 @@ function extractJSON(s:string){
 }
 
 
-export const finalValidateAndPolish = RunnableLambda.from(inputToRunnable)
+export const finalValidateAndPolishStep = RunnableLambda.from(inputToRunnable)

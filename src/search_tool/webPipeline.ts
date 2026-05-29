@@ -8,7 +8,12 @@ import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 
 const setTopResults = 5;
 
-async function inputToRunnable1(input :{q : string; mode : 'web' | 'direct'}){
+type Input1 = {
+    q : string; 
+    mode : 'web' | 'direct'
+}
+
+async function inputToRunnable1(input : Input1){
     const results = await webSearch(input.q);
 
     return {
@@ -20,9 +25,13 @@ async function inputToRunnable1(input :{q : string; mode : 'web' | 'direct'}){
 export const webSearchStep = RunnableLambda.from(inputToRunnable1);
 
 
+type Input2 = {
+    q : string; 
+    mode : 'web'|'direct'; 
+    results : any
+}
 
-
-async function inputToRunnable2(input:{q : string; mode : 'web'|'direct'; results:any}){
+async function inputToRunnable2(input:Input2){
 
     if(!Array.isArray(input.results) || input.results.length===0){
         return {
@@ -74,14 +83,14 @@ export const openAndSummarizeStep = RunnableLambda.from(inputToRunnable2);
 
 
 
-
-
-async function inputToRunnable3(input:{
-    q:string ; 
+type Input3 = {
+    q : string ; 
     mode : 'web' | 'direct',
-    pageSummaries:Array<{url:string,summary:string}>;
+    pageSummaries : Array<{url : string, summary : string}>;
     fallback:'no-results' |  'snippets' | 'none'
-}):Promise<Candidate>{
+}
+
+async function inputToRunnable3(input : Input3 ):Promise<Candidate>{
 
     const model = getChatModel({temperature:0.2});
 
