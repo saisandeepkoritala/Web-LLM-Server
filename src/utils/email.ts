@@ -1,55 +1,39 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
+import { Request, Response } from 'express';
 
-const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: false, // true for 465, false for other ports
-    auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-    },
-    tls: {
-        // This prevents Render's cloud IP from being instantly rejected
-        rejectUnauthorized: false 
-    }
-});
+// Initialize Resend with your environment variable
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 type Body = {
-    email : string,
-    subject : string,
-    message : string
+    email: string;
+    subject: string;
+    message: string;
 }
 
-// Send an email
-export const Send = ({ email, subject, message }:Body) => {
-    console.log("sending email", email, subject, message);
+// 1. New HTTP-Based Send Function
+export const Send = async ({ email, subject, message }: Body): Promise<string> => {
+    console.log("Sending email via Resend HTTP API to:", email);
 
-    return new Promise((resolve, reject) => {
-        transporter.sendMail({
-            from: 'yourstruelysaisandeep@gmail.com',
+    try {
+        await resend.emails.send({
+            // NOTE: On the free tier without a custom domain, 
+            // you MUST send 'from' this exact address:
+            from: 'onboarding@resend.dev', 
             to: email,
             subject: subject,
-            text: "This is a plain text version of your message.", // Plain text version
             html: `
-            <div style="background-color: #f4f4f4; padding: 20px; font-family: Arial, sans-serif;">
-
-            <img src="https://play-lh.googleusercontent.com/MjrPI6DZ82LTP0Gt6MtJrAruaAUIa4mj029OJDOpwiyNC4HLcqljzDVohqjDWEhoNl0" alt="Logo" style="width:auto; height:auto;">
-            
-                <h2 style="color: #333;">${subject}</h2>
-                <p style="font-size: 16px; color: #0000FF;">${message} valid for 10 minutes</p>
-                <p style="font-size: 14px; color: #777;">Thanks for using our service!</p>
-            </div>
-        `
-
-        }, (err : any) => {
-            if (err) {
-                console.log("error", err);
-                reject(new Error("email sending error"));
-            } else {
-                resolve("success");
-            }
+                <div style="background-color: #f4f4f4; padding: 20px; font-family: Arial, sans-serif;">
+                    <h2 style="color: #333;">${subject}</h2>
+                    <p style="font-size: 16px; color: #0000FF;">${message}</p>
+                    <p style="font-size: 14px; color: #777;">Thanks for using our service!</p>
+                </div>
+            `
         });
-    });
+        
+        console.log("Email sent successfully via Resend!");
+        return "success";
+    } catch (err: any) {
+        console.error("Resend API encountered an error:", err.message);
+        throw new Error("Email delivery failed");
+    }
 };
-
-
