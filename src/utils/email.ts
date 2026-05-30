@@ -1,11 +1,16 @@
 import nodemailer from 'nodemailer';
 
-// Create a new transporter object
 const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false, // true for 465, false for other ports
     auth: {
-        user: 'yourstruelysaisandeep@gmail.com',
-        pass: 'qscb ymtw qnuw zryl',
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+    },
+    tls: {
+        // This prevents Render's cloud IP from being instantly rejected
+        rejectUnauthorized: false 
     }
 });
 
