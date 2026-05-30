@@ -38,7 +38,9 @@ export type SearchInput = z.infer<typeof searchInputSchema>;
 export const SearchAnswerSchema = z.object({
     answer : z.string(),
     sources : z.array(z.url()).default([]),
-    mode: z.enum(['web','direct'])
+    mode: z.enum(['web','direct']),
+    inputTokens: z.number(),
+    outputTokens: z.number()
 });
 
 export type SearchAnswer = z.infer<typeof SearchAnswerSchema>; 

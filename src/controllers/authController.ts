@@ -5,48 +5,70 @@ import {TempUser} from '../models/tempUser';
 import {env} from '../shared/env';
 import { NextFunction, Request, Response } from 'express';
 
-export const getToken = (email : string) => {
-    return jwt.sign({ email }, env.JWT_SECRET, { expiresIn: '1d' });
+export const getToken = (email : string,id : any ) => {
+    return jwt.sign({ email,id }, env.JWT_SECRET, { expiresIn: '1d' });
 };
 
-export const googleAuthCallback = async (req:Request, res:Response) => {
-    try {
-        const token = getToken(req.user.email) as string;
-        let user = await User.findOne({ email: req.user.email });
+interface GoogleExpressRequest extends Request {
+    user?: {
+        id?: string;
+        displayName?: string;
+        email?: string;
+        picture?: string;
+        photos?: Array<{ value: string }>;
+    };
+}
 
-        if (user) {
-            if (!user.accountType.includes("google")) {
-                user.accountType.push("google");
-                user.picture = req.user.picture || req.user.photos[0]?.value;
-                await user.save({ validateBeforeSave: false });
-            }
-        } else {
+export const googleAuthCallback = async (req: GoogleExpressRequest, res: Response) => {
+    const frontendURL = process.env.FRONTEND_URL?.replace(/\/$/, "") || "http://localhost:5173";
+
+    try {
+        // Guard 1: Ensure req.user exists and has an email
+        if (!req.user || !req.user.email) {
+            return res.redirect(`${frontendURL}/login?error=invalid_user_data`);
+        }
+
+        // TypeScript now guarantees req.user and req.user.email are defined!
+        const email = req.user.email; 
+        let user = await User.findOne({ email });
+
+        // Guard 2: If user doesn't exist, provision a new one
+        if (!user) {
+            // Safe fallback if Google doesn't return a displayName
+            const fallbackName = email.split("@")[0];
+
             user = new User({
-                userName: req.user.displayName,
-                email: req.user.email,
+                userName: req.user.displayName ?? fallbackName,
+                email: email,
                 accountType: ["google"],
-                picture: req.user.picture || req.user.photos[0]?.value,
+                picture: req.user.picture || req.user.photos?.[0]?.value,
                 accountCreatedAt: new Date(),
             });
             await user.save({ validateBeforeSave: false });
+        } 
+        // Guard 3: If user exists but hasn't linked Google yet, update them
+        else if (!user.accountType.includes("google")) {
+            user.accountType.push("google");
+            user.picture = req.user.picture || req.user.photos?.[0]?.value || user.picture;
+            await user.save({ validateBeforeSave: false });
         }
 
-        const userData = encodeURIComponent(JSON.stringify(user));
+        // Generate the token
+        const token = getToken(user.email, user._id) as string;
 
         res.cookie("Access_token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: "Lax",
+            secure: true, 
+            sameSite: "none", 
             path: "/"
         });
 
-        const frontendURL = process.env.FRONTEND_URL.endsWith('/') 
-            ? process.env.FRONTEND_URL.slice(0, -1) 
-            : process.env.FRONTEND_URL;
+        const userData = encodeURIComponent(JSON.stringify(user));
         res.redirect(`${frontendURL}/login?userData=${userData}`);
+        
     } catch (error) {
-        console.error("Auth Error ra unga:", error);
-        res.redirect(`${process.env.FRONTEND_URL}/login?error=auth_failed`);
+        console.error("Auth Error:", error);
+        return res.redirect(`${frontendURL}/login?error=auth_failed`);
     }
 };
 
@@ -89,7 +111,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
         }
 
         // 3. Generate token and strip password from response object
-        const token = getToken(user.email);
+        const token = getToken(user.email,user._id);
         
         const userResponse = user.toObject();
 
@@ -164,7 +186,7 @@ export const signUp = async (req:Request, res:Response) => {
 
 
         // Generate and send token
-        const token = getToken(newUser.email);
+        const token = getToken(newUser.email,newUser._id);
         await TempUser.deleteOne({ email: newUser.email });
 
         res.cookie("Access_token", token, {

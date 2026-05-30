@@ -8,7 +8,9 @@ import { SearchInput } from "@/utils/schemas";
 type OutputSchema = {
     answer: string,
     sources:string[],
-    mode:'direct'|'web'
+    mode:'direct'|'web',
+    inputTokens:number,
+    outputTokens:number
 } 
 
 type InputSchema = {

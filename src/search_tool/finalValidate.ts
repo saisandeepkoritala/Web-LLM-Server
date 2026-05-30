@@ -9,7 +9,9 @@ async function inputToRunnable(candidate : Candidate){
     const finalDraft = {
         answer : candidate.answer,
         sources : candidate.sources ?? [],
-        mode :  candidate.mode
+        mode :  candidate.mode,
+        inputTokens: candidate.inputTokens,
+        outputTokens: candidate.outputTokens
     }
 
     const parsed1 = SearchAnswerSchema.safeParse(finalDraft);
@@ -24,13 +26,7 @@ async function inputToRunnable(candidate : Candidate){
     
 }
 
-type Repair = {
-    answer : string,
-    sources : string[],
-    mode : 'web'|'direct'
-}
-
-async function repairSearchAnswer(obj : any) : Promise<Repair>{
+async function repairSearchAnswer(obj : any) : Promise<Candidate>{
     const model = getChatModel({temperature:0.2});
 
     const response = await model.invoke([
@@ -58,6 +54,8 @@ async function repairSearchAnswer(obj : any) : Promise<Repair>{
         answer:String(json?.answer ?? "").trim(),
         sources : Array.isArray(json?.sources) ? json?.sources?.map(String) : [],
         mode : Array.isArray(json?.sources) ? 'web' : 'direct',
+        inputTokens:response.usage_metadata?.input_tokens || 1,
+        outputTokens:response.usage_metadata?.output_tokens || 1,
     }
 }
 

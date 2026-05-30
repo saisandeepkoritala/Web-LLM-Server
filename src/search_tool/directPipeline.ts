@@ -22,8 +22,11 @@ async function inputToRunnable(input : Input):Promise<Candidate>{
         const directAns = typeof (directAnsFromModel.content) ==='string' ? 
         directAnsFromModel.content : String(directAnsFromModel.content);
 
+        
         return {
             answer: directAns.trim(),
+            inputTokens:directAnsFromModel.usage_metadata?.input_tokens || 0,
+            outputTokens:directAnsFromModel.usage_metadata?.output_tokens || 0,
             sources:[],
             mode:'direct'
         }

@@ -109,7 +109,9 @@ async function inputToRunnable3(input : Input3 ):Promise<Candidate>{
         return {
             answer: directAns.trim(),
             sources:[],
-            mode:'direct'
+            mode:'direct',
+            inputTokens:directAnsFromModel.usage_metadata?.input_tokens || 1,
+            outputTokens:directAnsFromModel.usage_metadata?.output_tokens || 1,
         }
     }
 
@@ -140,6 +142,8 @@ async function inputToRunnable3(input : Input3 ):Promise<Candidate>{
     return {
             answer: finalAnswer,
             sources:input.pageSummaries.map(s=>s.url),
+            inputTokens:response.usage_metadata?.input_tokens || 1,
+            outputTokens:response.usage_metadata?.output_tokens || 1,
             mode:'web'
         }
 }
