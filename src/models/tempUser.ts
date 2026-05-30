@@ -2,13 +2,9 @@ import mongoose, { InferSchemaType } from "mongoose";
 import validator from "validator";
 
 const tempUser = new mongoose.Schema({
-    firstName:{
+    name:{
         type:String,
-        required:[true,"First Name not Provided"]
-    },
-    lastName:{
-        type:String,
-        required:[true,"Last Name not Provided"]
+        required:[true,"Name not Provided"]
     },
     email:{
         type:String,

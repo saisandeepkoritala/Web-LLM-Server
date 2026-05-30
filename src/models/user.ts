@@ -2,7 +2,6 @@ import mongoose, { Document, InferSchemaType } from "mongoose";
 import validator from "validator";
 import bcrypt from "bcrypt";
 
-
 const userSchema = new mongoose.Schema({
   userName: {
     type: String,
@@ -71,37 +70,30 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-
 type User = InferSchemaType<typeof userSchema>;
-
 
 interface UserMethods {
   correctPassword(password: string, userPassword: string): Promise<boolean>;
 }
 
-userSchema.pre<User & Document>('save', async function (next : any) {
+// FIX 1: Pure Async/Await Password Hashing (Removed 'next')
+userSchema.pre<User & Document>('save', async function () {
   if (!this.isModified("password")) {
-    return next();
+    return;
   }
   
   this.password = await bcrypt.hash(this.password as string, 12);
   (this as any).passwordConfirm = undefined; 
-  next();
 });
 
-
-userSchema.pre('save', function (this: any, next : any) {
-
+// FIX 2: Pure Async/Await Token Validation (Removed 'next', throwing native errors)
+userSchema.pre<User & Document>('save', async function () {
   if (this.inputTokens >= 1000000) {
     this.reachedMaxLimit = true;
     
-    // Passing an error to next() halts execution and forwards it to your Express error handler
-    return next(new Error("TokenLimitExceeded: User has run out of tokens."));
+    throw new Error("TokenLimitExceeded: User has run out of tokens.");
   }
-
-  next();
 });
-
 
 userSchema.methods.correctPassword = async function (
   password: string,
