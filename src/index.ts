@@ -31,12 +31,13 @@ app.use(session({
     secret: process.env.SESSION_SECRET || 'cricket-secret',
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: process.env.NODE_ENV ==='production'?true:false } // Set to true if using HTTPS
+    cookie: { secure: process.env.NODE_ENV ==='production'?true:false } 
+    // Set to true if using HTTPS
 }));
 
 
 // 3. API Routes
-app.use("/api/v1/fetchUserHistory",historyRouter);
+app.use("/api/v1/fetchUserHistory",checkJwtToken,historyRouter);
 app.use("/api/v1/search", checkJwtToken,searchRouter);
 app.use("/api/v1/user/auth",authRouter);
 
