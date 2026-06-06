@@ -37,8 +37,8 @@ app.use(session({
 
 
 // 3. API Routes
-app.use("/api/v1/fetchUserHistory",historyRouter);
-app.use("/api/v1/search", searchRouter);
+app.use("/api/v1/fetchUserHistory", checkJwtToken, historyRouter);
+app.use("/api/v1/search", checkJwtToken, searchRouter);
 app.use("/api/v1/user/auth",authRouter);
 
 
