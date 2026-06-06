@@ -40,12 +40,7 @@ export async function openUrl(url :  string){
             },
         ]
     }) : raw  
-    console.log(text);
-    console.log("---------------------------------------")
-    console.log(text.length);
-    console.log("------------------------------------------")
     const cleanedText = collapseWhiteSpace(text);
-    console.log(cleanedText)
     const cappedText = cleanedText.slice(0,8000);
 
     return openUrlOutputSchema.parse({

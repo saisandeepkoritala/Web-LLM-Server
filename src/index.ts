@@ -28,7 +28,7 @@ app.use(cookieParser());
 // 2. Initialize Passport Middleware (Crucial for your Google OAuth setup)
 app.use(passport.initialize());
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'cricket-secret',
+    secret: process.env.SESSION_SECRET || 'default-secret',
     resave: false,
     saveUninitialized: true,
     cookie: { secure: process.env.NODE_ENV ==='production'?true:false } 
@@ -37,8 +37,8 @@ app.use(session({
 
 
 // 3. API Routes
-app.use("/api/v1/fetchUserHistory",checkJwtToken,historyRouter);
-app.use("/api/v1/search", checkJwtToken,searchRouter);
+app.use("/api/v1/fetchUserHistory",historyRouter);
+app.use("/api/v1/search", searchRouter);
 app.use("/api/v1/user/auth",authRouter);
 
 
