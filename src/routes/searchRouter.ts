@@ -7,30 +7,23 @@ import express from 'express';
 
 export const searchRouter = express.Router();
 
-type USER = {
-    email:string,
-    id:string,
-    iat:number,
-    exp:number
-}
+
 searchRouter.post("/",async(req,res)=>{
     try{    
-        const input = searchInputSchema.parse(req.body);
-        const result = await runSearch(input);
-
-        const user = req.user as USER
+        const {q, id, email} = searchInputSchema.parse(req.body);
+        const result = await runSearch({ q, id, email });
 
         await Chat.create({
-            question:input.q,
+            question:q,
             answer:result?.answer,
             sources:result?.sources,
             mode:result?.mode,
             createdAt:new Date(),
-            userId:user.id,
-            email:user.email
+            userId:id,
+            email:email
         })
 
-        await User.findByIdAndUpdate(user.id, {
+        await User.findByIdAndUpdate(id, {
             $inc: {
                 inputTokens: result?.inputTokens ?? 0,
                 outputTokens: result?.outputTokens ?? 0

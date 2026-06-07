@@ -30,7 +30,9 @@ export const summarizeOutputSchema = z.object({
 });
 
 export const searchInputSchema = z.object({
-    q : z.string().min(5,"Please be  specific")
+    q : z.string().min(5,"Please be  specific"),
+    id : z.string().optional(),
+    email : z.string().optional()
 });
 
 export type SearchInput = z.infer<typeof searchInputSchema>;
